@@ -84,6 +84,8 @@ requirejs.config( {
     },
     paths: {
         SeedView: '.',
+        engineDetector: 'bower_components/engineDetector/app',
+        utils: 'bower_components/mangrove-utils/app',
         almond: 'bower_components/almond/almond',
         chai: 'bower_components/chai/chai',
         'chai-as-promised': 'bower_components/chai-as-promised/lib/chai-as-promised',
@@ -102,7 +104,15 @@ requirejs.config( {
         'Markdown.Converter': 'bower_components/requirejs-plugins/lib/Markdown.Converter',
         text: 'bower_components/requirejs-plugins/lib/text',
         'sinon-chai': 'bower_components/sinon-chai/lib/sinon-chai',
-        sinonjs: 'bower_components/sinonjs/sinon'
+        sinonjs: 'bower_components/sinonjs/sinon',
+        SeedHq: 'bower_components/SeedHq/app',
+        'Array.nocomplex': 'bower_components/Array.nocomplex/app',
+        'String.nocomplex': 'bower_components/String.nocomplex/app',
+        'mangrove-utils': 'bower_components/mangrove-utils/app',
+        'underscore.string': 'bower_components/underscore.string/lib/underscore.string',
+        ifEngineIsNode: 'bower_components/engineDetector/app/ifEngineIsNode',
+        ifEngineIsBrowser: 'bower_components/engineDetector/app/ifEngineIsBrowser',
+        toDOM: 'bower_components/toDOM/app'
     }
 } )
 
