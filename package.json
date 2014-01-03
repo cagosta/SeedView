@@ -4,7 +4,7 @@
     "private": false,
     "keywords": [],
     "contributors": [ "Cyril Agosta <cyril.agosta.dev@gmail.com>" ],
-    "description": "",
+    "description": "Useful DOM Views based on SeedHq that you should not use ( unstable, untested ).",
     "devDependencies": {
     },
     "dependencies": {

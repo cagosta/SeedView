@@ -6,7 +6,7 @@
 Useful DOM Views based on SeedHq that you should not use ( unstable, untested ).
 
 
-See [SeedHq](https://github.com/cagosta/SeedHq) for details on Seed ( inheritence system ).  
+See [SeedHq](https://github.com/cagosta/SeedHq) for details on Seed ( inheritance system ).  
 
 
 ## Install ##
@@ -57,7 +57,10 @@ window.SeedView
 
 ## To do ##
 
-*  
+*  clean subview
+*  clean 
+*  doc 
+*  test
 
 ## Documentation ##
 
