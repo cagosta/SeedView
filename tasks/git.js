@@ -6,7 +6,7 @@ module.exports = function( grunt ) {
 
         grunt.config.set( 'exec.git_add_origin', {
 
-            command: 'git remote add origin git@github.com:cagosta/SeedView.git'
+            command: 'git remote add origin git@github.com:cagosta/SeedHq.git'
 
         } )
 
@@ -49,7 +49,7 @@ module.exports = function( grunt ) {
 
     grunt.registerTask( 'git:create_github_repo', function() {
 
-        var curlCommand = grunt.config.process( 'curl -u \'cagosta\' https://api.github.com/user/repos -d \'{"name":"SeedView"}\'' )
+        var curlCommand = grunt.config.process( 'curl -u \'cagosta\' https://api.github.com/user/repos -d \'{"name":"SeedHq"}\'' )
 
         grunt.config.set( 'exec.git_create_github_repo', {
             command: curlCommand
