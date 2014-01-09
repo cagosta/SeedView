@@ -6,7 +6,7 @@
 
 define( [
     'SeedHq/Seed',
-    'utils/dom/all',
+    'mangrove-utils/dom/all',
     'Array.nocomplex/isArray',
     'String.nocomplex/String.nocomplex',
     'Array.nocomplex/all'
