@@ -10,7 +10,7 @@ define( [
     'Array.nocomplex/isArray',
     'String.nocomplex/String.nocomplex',
     'Array.nocomplex/all',
-    'parsers/HTMLParser'
+    './parsers/HTMLParser'
  ], function( Seed, dom, isArray, Str, Arr, HTMLParser ) {
 
 
