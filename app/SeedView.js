@@ -5,12 +5,13 @@
  */
 
 define( [
-    'SeedHq/Seed',
+    'Seed/Seed',
     'mangrove-utils/dom/all',
     'Array.nocomplex/isArray',
     'String.nocomplex/String.nocomplex',
-    'Array.nocomplex/all'
- ], function( Seed, dom, HTMLExpression, isArray, Str, Arr ) {
+    'Array.nocomplex/all',
+    'parsers/HTMLParser'
+ ], function( Seed, dom, isArray, Str, Arr, HTMLParser ) {
 
 
     var View = Seed.extend(  {
@@ -24,7 +25,10 @@ define( [
             template: null,
             rawData: null,
             events: null,
-            data: null
+            data: null,
+            parsers: {
+                html: new HTMLParser
+            }
         },
 
         _isView: true,
@@ -34,6 +38,13 @@ define( [
                 this.template = a
                 this.data = b
             }
+
+            // console.log('parers', this.parsers )
+
+            // for ( var parser in this.parsers )
+            //     if ( this.parsers.hasOwnProperty(i) )
+            //         this.parsers[ parser ].bindTo( this )
+
             this._template = this.template
             this._data = this.data
             this._elements = {}
@@ -67,23 +78,8 @@ define( [
         },
 
         parse: function() {
-            this[ 'parse' + this.parser.capitalize() ]()
-        },
-
-        parseHtml: function() {
-            var fragment = document.createDocumentFragment(),
-                container = document.createElement( 'container' ),
-                flaggedElements
-                container.innerHTML = this.template
-                fragment.appendChild( container.childNodes[ 0 ] )
-                this._fragment = fragment
-                this._elements = {
-                    root: this._fragment
-                }
-            flaggedElements = this.getElementsByAttribute( 'flag' )
-            for ( var i = 0; i < flaggedElements.length; i++ ) {
-                this.addElement( flaggedElements[ i  ].getAttribute( 'flag' ), flaggedElements[ i ] )
-            }
+            // this.parsers[ this.parser ].parse( this )
+            this.parse[  this.parser.capitalize() ]()
         },
 
         addElement: function( key, el ) {
@@ -133,6 +129,7 @@ define( [
         },
 
         getElementByAttribute: function( attribute, value ) {
+
             var allElements = this.element( 'root' ).getElementsByTagName( '*' );
             for ( var i = 0; i < allElements.length; i++ ) {
                 if ( allElements[ i ].getAttribute( attribute ) === value ) {
@@ -143,6 +140,7 @@ define( [
 
         getElementsByAttribute: function( attribute ) {
             var ret = []
+            console.log( 'this', this, this._elements )
             var allElements = this.element( 'root' ).getElementsByTagName( '*' );
             for ( var i = 0; i < allElements.length; i++ ) {
                 if ( allElements[ i ].getAttribute( attribute ) ) {

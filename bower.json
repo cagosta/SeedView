@@ -11,14 +11,14 @@
   ],
   "dependencies": {
     "requirejs": "~2.1.9",
-    "requirejs-plugins": "~1.0.2",
-    "SeedHq": "~0.0.3",
-    "mangrove-utils": "~0.0.15",
-    "Array.nocomplex": "~0.0.13",
-    "String.nocomplex": "~0.0.2",
+    "requirejs-plugins": "~1.0.x",
+    "Seed": "~0.0.x",
+    "mangrove-utils": "~0.0.x",
+    "Array.nocomplex": "~0.0.x",
+    "String.nocomplex": "~0.0.x",
     "underscore.string": "~2.3.3",
     "engineDetector": "~0.0.8",
-    "toDOM": "~0.0.2"
+    "toDOM": "~0.0.x"
   },
   "devDependencies": {
     "sinonjs": "~1.7.3",
