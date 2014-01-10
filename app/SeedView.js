@@ -78,7 +78,7 @@ define( [
         },
 
         parse: function() {
-            this.parse[ 'parse'  + this.parser.capitalize() ]()
+            this[ 'parse'  + this.parser.capitalize() ]()
         },
 
         addElement: function( key, el ) {
