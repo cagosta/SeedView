@@ -9,6 +9,9 @@ Useful DOM Views based on SeedHq that you should not use ( unstable, untested ).
 See [SeedHq](https://github.com/cagosta/SeedHq) for details on Seed ( inheritance system ).  
 
 
+## Demo ##
+See [cagosta.github.io/SeedView](http://cagosta.github.io/SeedView) 
+
 ## Install ##
 
 SeedView is coded as [AMD module](http://requirejs.org/docs/whyamd.html) but can be installed with npm, bower or old-fashioned src=".min.js".
