@@ -13,8 +13,10 @@ define([
             
         },
 
-        parse: function( view ) {
-            var fragment = document.createDocumentFragment(),
+        parse: function( view ) { // dirty
+
+
+            var fragment = document.createElement(),
                 container = document.createElement( 'container' ),
                 flaggedElements
                 container.innerHTML = view.template

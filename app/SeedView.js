@@ -10,84 +10,98 @@ define( [
     'Array.nocomplex/isArray',
     'String.nocomplex/String.nocomplex',
     'Array.nocomplex/all',
-    './parsers/HTMLParser'
- ], function( Seed, dom, isArray, Str, Arr, HTMLParser ) {
+    './parsers/defaultParsers'
+ ], function( Seed, dom, isArray, Str, Arr, defaultParsers ) {
 
 
     var View = Seed.extend(  {
 
         type: 'View',
 
-        accessors: [ 'data', 'rawData|PlainObject' ],
+        accessors: [ 'data', 'node', 'template', 'elements' ],
 
         '+options': {
-            parser: null,
-            template: null,
-            rawData: null,
+            parser: null, // retrocompatibility, todo remove me
+            template: 'div.default_seedview_template',
             events: null,
             data: null,
-            parsers: {
-                html: new HTMLParser
-            }
+            parsers: defaultParsers,
+            subviews: null,
+            contained: null,
+            elements: null,
+            node: null
         },
 
         _isView: true,
 
         '+constructor': function( a, b ) {
-            if ( b ) {
-                this.template = a
-                this.data = b
-            }
 
-            // console.log('parers', this.parsers )
-
-            // for ( var parser in this.parsers )
-            //     if ( this.parsers.hasOwnProperty(i) )
-            //         this.parsers[ parser ].bindTo( this )
-
-            this._template = this.template
-            this._data = this.data
-            this._elements = {}
-            this._contained = {}
-            this._subviews = {}
+            this.data = this.data ||  {}
+            this.subviews = this.subviews || {}
+            this.contained = this.contained || {}
+            this.elements = this.elements || {}
             this.detectParser()
             this.parse()
 
-            if ( this._DOMEvents )
-                this.DOMEvent( this._DOMEvents )
+            if ( typeof this.data === 'function' )
+                this.data = this.data.bind( this )()
+
+
             if ( this.events )
                 this.DOMEvent( this.events )
+
             this._displayState = {}
         },
 
+        hasElement: function( label ) {
+            return !!this.elements[ label ]
+        },
 
         buildSubviews: function() {
             this.eachElement( function( el, key ) {
-                this._subviews[ key ] = new View( {
+                this.subviews[ key ] = new View( {
                     template: el
                 } )
             }.bind( this ) )
         },
 
         eachElement: function( f ) {
-            var elementIds = Object.keys( this._elements ),
-                elements = this._elements
-                elementIds.each( function( key ) {
-                    f( elements[ key ], key )
-                } )
+            var elementIds = Object.keys( this.elements ),
+                elements = this.elements;
+            elementIds.each( function( key ) {
+                f( elements[ key ], key )
+            } )
         },
 
         parse: function() {
-            this[ 'parse'  + this.parser.capitalize() ]()
+            var parser = this.parsers[  this.parser ],
+                parsed, elements
+            if ( !parser )
+                throw new Error( 'No parser: ' + this.parser )
+            parsed = parser.parse( this )
+
+            if ( !parsed )
+                throw new Error( 'Parse error ' )
+            if ( !parsed.node )
+                throw new Error( 'No node given from parse' )
+            this.setNode( parsed.node )
+
+            elements = parsed.elements
+            if ( !elements )
+                elements = {}
+
+            elements.root = parsed.node
+
+            this.setElements( elements )
         },
 
         addElement: function( key, el ) {
-            this._elements[  key ] = el
-            this._contained[  key ] = []
+            this.elements[  key ] = el
+            this.contained[  key ] = []
         },
 
         subview: function( label ) {
-            return this._subviews[ label ]
+            return this.subviews[ label ]
         },
 
         getElementById: function( elmLabel, id ) {
@@ -106,21 +120,13 @@ define( [
             return this.element( elmLabel ).getElementsByClassName( className )
         },
 
-
-        parseDOMElement: function() {
-            this._fragment = this.template
-            this._elements = {
-                root: this._fragment
-            }
-        },
-
         detectParser: function() {
             if ( !this.template )
                 throw new Error( 'views/View needs a valid template' )
             if ( this.parser )
                 return
             if ( this.template.nodeName )
-                this.parser = 'DOMElement'
+                this.parser = 'dom'
             else if ( typeof this.template === 'string' && this.template.charAt( 0 ) === '<' )
                 this.parser = 'html'
             else
@@ -128,7 +134,6 @@ define( [
         },
 
         getElementByAttribute: function( attribute, value ) {
-
             var allElements = this.element( 'root' ).getElementsByTagName( '*' );
             for ( var i = 0; i < allElements.length; i++ ) {
                 if ( allElements[ i ].getAttribute( attribute ) === value ) {
@@ -139,7 +144,6 @@ define( [
 
         getElementsByAttribute: function( attribute ) {
             var ret = []
-            console.log( 'this', this, this._elements )
             var allElements = this.element( 'root' ).getElementsByTagName( '*' );
             for ( var i = 0; i < allElements.length; i++ ) {
                 if ( allElements[ i ].getAttribute( attribute ) ) {
@@ -150,27 +154,10 @@ define( [
         },
 
 
-        _fragmentStatus: 1,
-        _signature: '',
-
         html: function() {
-            // if ( !this._fragmentStatus )
-            //     this.recover()
 
-            this._fragmentStatus = 0
-            return this._fragment
-        },
+            return this.node
 
-        recover: function() {
-            var buffer, rootElts = ( buffer = this.element( "root" ), Array.isArray( buffer ) ) ? buffer : buffer ? [ buffer ] : [],
-                i = 0,
-                l = rootElts.length
-
-                this._fragment = document.createDocumentFragment()
-
-                for ( ; i < l; i++ )
-                    this._fragment.appendChild( rootElts[ i ] )
-                this._fragmentStatus = 1
         },
 
         clone: function() {
@@ -178,7 +165,9 @@ define( [
         },
 
         element: function( name ) {
-            return Array.isArray( this._elements[ name ] ) ? [].concat( this._elements[ name ] ) : this._elements[ name ]
+            if ( !this.elements || !this.elements[ name ] )
+                debugger
+            return this.elements[ name ]
         },
 
         DOMEvent: function( eltRef, event, handler, capture ) {
@@ -214,27 +203,6 @@ define( [
             return allArgs.length === check;
         },
 
-        setSignature: function( signature ) {
-            this._signature = signature;
-        },
-
-        error: function( message ) {
-            var name = this._name ? '[' + this._name + ']' : '';
-            throw new Error( '[View]' + name + ' ' + message + '.' );
-        },
-
-        errorElementNotFound: function( name ) {
-            this.error( 'element label (' + name + ') not found' );
-        },
-
-        errorAgumentInvalid: function( argument ) {
-            this.error( this._signature + ': ' + argument + ' is invalid' );
-        },
-
-        errorNotAView: function( name ) {
-            this.error( this._signature + ': ' + name + ' is not a view instance' );
-        },
-
         toggle: function( elmLabel ) {
             elmLabel = elmLabel || 'root'
             if ( typeof this._displayState[ elmLabel ] === 'undefined' ) {
@@ -264,45 +232,22 @@ define( [
         },
 
         attachEvent: function( elmLabel, eventName, cb ) {
-            this.setSignature( 'attachEvent(elmLabel, eventName, cb)' );
             if ( this.checkArguments( arguments, 2 ) ) {
                 cb = eventName;
                 eventName = elmLabel;
                 elmLabel = 'root';
             }
-            if ( !eventName ) {
-                this.errorAgumentInvalid( 'eventName' );
-            }
-            if ( !cb ) {
-                this.errorAgumentInvalid( 'cb' );
-            }
             var el = this.element( elmLabel )
-            if ( !el ) {
-                this.errorElementNotFound( elmLabel );
-                return;
-            }
             dom.addEventListener( el, eventName, cb.bind( this ) )
         },
 
         css: function( elmLabel, o ) {
-            this.setSignature( 'css(elmLabel, o)' );
             if ( this.checkArguments( arguments, 1 ) ) {
                 o = elmLabel;
                 elmLabel = 'root';
             }
-            if ( !o ) {
-                this.errorAgumentInvalid( 'o' );
-            }
             var el = this.element( elmLabel )
-            if ( !el ) {
-                this.errorElementNotFound( elmLabel );
-                return;
-            }
             var style = el.style;
-            if ( !style ) {
-                this.error( 'element label (' + elmLabel + ') has no styles found' );
-                return;
-            }
             if ( typeof o !== 'string' )
                 for ( var i in o )
                     if ( o.hasOwnProperty( i ) )
@@ -315,34 +260,14 @@ define( [
         },
 
         attr: function( elmLabel, o ) {
-            this.setSignature( 'attr(elmLabel, o)' );
             if ( this.checkArguments( arguments, 1 ) ) {
                 o = elmLabel;
                 elmLabel = 'root';
             }
-            if ( !o ) {
-                this.errorAgumentInvalid( 'o' );
-            }
             var el = this.element( elmLabel )
-            if ( !el ) {
-                this.errorElementNotFound( elmLabel );
-                return;
-            }
-            if ( typeof o !== 'string' ) {
-                for ( var i in o ) {
-                    if ( o.hasOwnProperty( i ) ) {
-                        el[ i ] = o[ i ]
-                    }
-                }
-            } else {
-                for ( var i in el ) {
-                    if ( el.hasOwnProperty( i ) ) {
-                        if ( i == o ) {
-                            return el[ o ]
-                        }
-                    }
-                }
-            }
+            for ( var i in o )
+                if ( o.hasOwnProperty( i ) )
+                    el[ i ] = o[ i ]
         },
 
         append: function( elmLabel, node ) {
@@ -356,125 +281,122 @@ define( [
         innerText: function( elmLabel, text ) {
             elmLabel = elmLabel || 'root'
             var el = this.element( elmLabel )
-            if ( !el ) {
-                this.errorElementNotFound( elmLabel );
-                return;
-            }
             el.innerText = text
         },
 
         innerHTML: function( elmLabel, text ) {
             elmLabel = elmLabel ||  'root'
             var el = this.element( elmLabel )
-            if ( !el ) {
-                this.errorElementNotFound( elmLabel );
-                return;
-            }
             el.innerHTML = text
         },
 
         hasClass: function( elmLabel, name ) {
-            this.setSignature( 'hasClass(elmLabel, name)' );
             if ( this.checkArguments( arguments, 1 ) ) {
                 name = elmLabel;
                 elmLabel = 'root';
             }
             var el = this.element( elmLabel )
-            if ( !el ) {
-                this.errorElementNotFound( elmLabel );
-                return;
-            }
-            if ( typeof name !== 'string' ) {
-                this.errorAgumentInvalid( 'name' );
-            }
             return ( new RegExp( '(\\s|^)' + name + '(\\s|$)' ) ).test( el.className );
         },
 
         addClass: function( elmLabel, name ) {
-            this.setSignature( 'hasClass(elmLabel, name)' );
             if ( this.checkArguments( arguments, 1 ) ) {
                 name = elmLabel;
                 elmLabel = 'root';
             }
-
             var el = this.element( elmLabel )
-            if ( !el ) {
-                this.errorElementNotFound( elmLabel );
-                return;
-            }
-            if ( typeof name !== 'string' ) {
-                this.errorAgumentInvalid( 'name' );
-            }
             if ( !this.hasClass( elmLabel, name ) ) {
                 el.className += ( el.className ? ' ' : '' ) + name
             }
         },
 
         removeClass: function( elmLabel, name ) {
-            this.setSignature( 'hasClass(elmLabel, name)' );
             if ( this.checkArguments( arguments, 1 ) ) {
                 name = elmLabel
                 elmLabel = 'root'
             }
             var el = this.element( elmLabel )
-            if ( !el ) {
-                this.errorElementNotFound( elmLabel );
-                return;
-            }
-            if ( typeof name !== 'string' )
-                this.errorAgumentInvalid( 'name' )
             if ( this.hasClass( elmLabel, name ) )
                 el.className = el.className.replace( new RegExp( '(\\s|^)' + name + '(\\s|$)' ), ' ' ).replace( /^\s+|\s+$/g, '' )
         },
 
         insert: function( elmLabel, views ) {
-            this.setSignature( 'insert([...])' );
             if ( !views ) {
                 views = elmLabel
-                elmLabel = 'root'
+                elmLabel = 'container'
             }
             views = Array.isArray( views ) ? views : [ views ]
-            this._contained[ elmLabel ] = this._contained[ elmLabel ] ||  []
+            this.contained[ elmLabel ] = this.contained[ elmLabel ] ||  []
             views.each( function( view ) {
                 this.insertView( elmLabel, view )
             }.bind( this ) )
         },
 
+        contained: function( elmLabel ) {
+            if ( !elmLabel )
+                elmLabel = 'root'
+            return this.contained[ elmLabel ]
+        },
+
         insertView: function( elmLabel, view ) {
-            this._contained[ elmLabel ].push( view )
+            if ( !view )
+                debugger
+            this.contained[ elmLabel ].push( view )
             this.element( elmLabel ).appendChild( view.html() )
         },
 
-
-        insertAt: function( view, index ) {
-            var el = this.element( 'container' )
-            if ( !el ) {
-                this.error( 'element label "container" not exist' )
-            }
+        insertAt: function( elmLabel, view, index ) {
+            elmLabel = elmLabel ||  'container'
+            var el = this.element( elmLabel )
             el.insertBefore( view.html(), el.childNodes[ index ] )
         },
 
-        reoder: function( view, index ) {
-            var fromIndex = this._contained.indexOf( view )
+        reoder: function( elmLabel, view, index ) { // broken
+            var fromIndex = this.contained[  elmLabel ].indexOf( view )
+            elmLabel = elmLabel ||  'container'
             if ( fromIndex !== -1 ) {
-                this._contained.splice( index, 0, this._contained.splice( fromIndex, 1 )[ 0 ] )
-                this.remove( view )
-                this.insertAt( view, index )
+                this.contained[ elmLabel ].splice( index, 0, this.contained[  elmLabel ].splice( fromIndex, 1 )[ 0 ] )
+                this.remove( elmLabel, view )
+                this.insertAt( elmLabel, view, index )
             }
         },
 
-        removeAll: function() {
-            for ( var i = 0; i < this._contained.length; i++ )
-                this.remove( this._contained[ i ] )
+        removeAll: function( elmLabel ) {
+            if ( !elmLabel )
+                elmLabel = 'container'
+            if ( !this.hasContained( elmLabel ) ) {
+                return
+            }
+            for ( var i = 0; i < this.contained[ elmLabel ].length; i++ )
+                this.remove( elmLabel, this.contained[ elmLabel ][ i ] )
         },
 
-        remove: function( view ) {
-            var index = this._contained.indexOf( view ),
-                el = view.html()
+        hasContained: function( elmLabel ) {
+            return !!this.contained[ elmLabel ]
+        },
+
+        recover: function() {
+            var root = this.element( 'root' )
+            if ( root.parentNode )
+                root.parentNode.removeChild( root )
+        },
+
+        remove: function( elmLabel, view ) {
+            elmLabel = elmLabel || 'container'
+            var index = this.contained[ elmLabel ].indexOf( view ),
+                el = view.element( 'root' )
                 if ( index !== -1 ) {
                     el.parentNode && el.parentNode.removeChild( el )
                 }
+        },
+
+        eachContained: function( f ) {
+            for ( var element in this.contained )
+                if ( this.contained.hasOwnProperty( element ) )
+                    f( this.contained( element ), element )
         }
+
+
     } )
 
     return View
