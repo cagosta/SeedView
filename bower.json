@@ -9,6 +9,7 @@
       "type": "MIT"
     }
   ],
+  "ignore": [ "documentation" ],
   "dependencies": {
     "requirejs": "~2.1.9",
     "requirejs-plugins": "~1.0.x",
