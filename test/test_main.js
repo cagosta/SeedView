@@ -41,7 +41,9 @@ requirejs.config( {
         ifEngineIsNode: 'bower_components/engineDetector/app/ifEngineIsNode',
         ifEngineIsBrowser: 'bower_components/engineDetector/app/ifEngineIsBrowser',
         toDOM: 'bower_components/toDOM/app',
-        Seed: 'bower_components/Seed/app'
+        Seed: 'bower_components/Seed/app',
+        window: 'bower_components/engineDetector/app/window',
+        engine: 'bower_components/engineDetector/app/engine'
     }
 } )
 

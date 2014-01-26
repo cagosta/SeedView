@@ -39,7 +39,7 @@ define( [
             this.data = this.data ||  {}
             this.subviews = this.subviews || {}
             this.contained = this.contained || {}
-            this.elements = this.elements || {}
+            this.elements = this.elements  || {}
             this.detectParser()
             this.parse()
 
@@ -239,6 +239,16 @@ define( [
             }
             var el = this.element( elmLabel )
             dom.addEventListener( el, eventName, cb.bind( this ) )
+        },
+
+        attachEvents: function( elmLabel, o ) {
+            if ( !o ) {
+                o = elmLabel
+                elmLabel = 'root'
+            }
+            for ( var eventName in o ) 
+                if( o.hasOwnProperty( eventName ))
+                    this.attachEvent( elmLabel, eventName, o[ eventName ] )
         },
 
         css: function( elmLabel, o ) {
