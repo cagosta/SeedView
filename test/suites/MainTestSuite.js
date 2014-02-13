@@ -1,14 +1,19 @@
 define( [
     'SeedView/SeedView',
     'engineDetector/engineDetector'
- ], function( SeedView, engineDetector ) {
+], function( SeedView, engineDetector ) {
+
 
     if ( engineDetector.isNode ) {
+
         describe( 'SeedView/SeedView', function() {
+
             it( 'should NOT run tests on node.js', function() {
                 expect( 0 ).to.equal( 0 )
             } )
+
         } )
+
         return
     }
 
@@ -19,6 +24,18 @@ define( [
         it( 'should load without blowing', function() {
 
             expect( SeedView ).to.exist
+
+        } )
+
+        it( 'should be instanciable with toDOM parser ', function() {
+
+
+            new SeedView( {
+
+                parser: 'toDOM',
+                template: {}
+
+            } )
 
         } )
 
