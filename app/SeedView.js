@@ -28,7 +28,7 @@ define( [
 
         '+options': {
             parser: null, // retrocompatibility, todo remove me
-            template: 'div.default_seedview_template',
+            template: null,
             events: null,
             data: null,
             parsers: defaultParsers,
@@ -36,7 +36,6 @@ define( [
             contained: null,
             elements: null,
             node: null
-
         },
 
         _isView: true,
@@ -100,7 +99,9 @@ define( [
             if ( !parser )
                 throw new Error( 'No parser: ' + this.parser )
 
+
             parsed = parser.parse( this )
+
 
             if ( !parsed )
                 throw new Error( 'Parse error ' )
@@ -110,8 +111,8 @@ define( [
 
             this.setNode( parsed.node )
 
-            elements = parsed.elements
 
+            elements = parsed.elements
             if ( !elements )
                 elements = {}
 
