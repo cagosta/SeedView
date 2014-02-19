@@ -1,5 +1,5 @@
 /**
- * SeedView version: "0.0.19" Copyright (c) 2011-2012, Cyril Agosta ( cyril.agosta.dev@gmail.com) All Rights Reserved.
+ * SeedView version: "0.0.20" Copyright (c) 2011-2012, Cyril Agosta ( cyril.agosta.dev@gmail.com) All Rights Reserved.
  * Available via the MIT license.
  * see: http://github.com/cagosta/SeedView for details
  */
@@ -11,7 +11,7 @@ define( [
     'String.nocomplex/String.nocomplex',
     'Array.nocomplex/all',
     './parsers/defaultParsers'
-], function( Seed, dom, isArray, Str, Arr, defaultParsers ) {
+ ], function( Seed, dom, isArray, Str, Arr, defaultParsers ) {
 
     /**
      *
@@ -384,7 +384,11 @@ define( [
 
             elmLabel = elmLabel || 'root'
             var el = this.element( elmLabel )
-            el.innerText = text
+
+            if ( 'innerText' in el )
+                el.innerText = text
+            else
+                el.textContent = text
 
         },
 
