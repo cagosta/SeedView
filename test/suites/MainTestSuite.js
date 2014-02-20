@@ -18,7 +18,6 @@ define( [
     }
 
 
-
     describe( 'SeedView/SeedView', function() {
 
         it( 'should load without blowing', function() {
@@ -39,17 +38,140 @@ define( [
 
         } )
 
-        // it( 'should be instanciable with html parser', function() {
+        describe( 'commons methods & test methods', function() {
 
-        //     expect( function() {
-        //         var view = new SeedView( {
-        //             parser: 'html',
-        //             template: '<div></div>'
-        //         } )
-        //     } ).to.not.
-        //     throw ( Error )
+            beforeEach( function() {
 
-        // } )
+                this.view = new SeedView( {
+
+                    parser: 'toDOM',
+                    template: {
+                        label: 'container',
+                        children: [ {
+                            label: 'alabel'
+                        } ]
+                    }
+
+                } )
+
+                this.anotherView = new SeedView( {
+
+                    template: {
+                        label: 'anotherLabel'
+                    }
+
+                } )
+
+            } )
+
+            describe( 'elements', function() {
+
+                it( 'should have a root element', function() {
+
+                    expect( this.view.hasElement( 'root' ) ).to.be.true
+
+                } )
+
+
+                describe( 'insert', function() {
+
+                    describe( 'to container label', function() {
+
+
+                        it( 'should be possible to insert a view to another view', function() {
+
+                            this.view.insert( this.anotherView )
+                            expect( this.view.contained.container ).to.exist
+
+                        } )
+
+                        describe( 'containA && contain', function() {
+
+                            it( 'should respond true when containing & false when not containing', function() {
+
+                                this.view.insert( this.anotherView )
+                                expect( this.view.containA( 'container' ) ).to.be.true
+                                expect( this.view.containA( 'bullshit' ) ).to.be.false
+
+                            } )
+
+
+                        } )
+
+                        describe( 'contain', function() {
+
+                            it( 'should respond true when containing & false when not containing', function() {
+
+                                this.view.insert( this.anotherView )
+                                expect( this.view.contain( this.anotherView ) ).to.be.true
+                                expect( this.view.contain( 'bullshit' ) ).to.be.false
+
+                            } )
+
+                        } )
+
+                    } )
+
+                    it( 'should be possible to add a view to anotherView label', function() {
+
+                        this.view.insert( 'alabel', this.anotherView )
+                        expect( this.view.contained.container ).to.not.exist
+                        expect( this.view.contained.alabel ).to.exist
+
+                    } )
+
+                } )
+
+            } )
+
+            describe( 'hasParentNode && getParentNode', function() {
+
+                it( 'should be possible test if a view is appended to something', function() {
+
+                    this.view.insert( this.anotherView )
+                    expect( this.view.hasParentNode() ).to.be.false
+                    expect( this.anotherView.hasParentNode() ).to.be.true
+
+                } )
+
+                it( 'should be possible to retrieve the parentnode', function() {
+
+                    this.view.insert( this.anotherView )
+                    expect( this.anotherView.getParentNode() ).to.equal( this.view.element( 'container' ) )
+
+                } )
+
+            } )
+
+            describe( 'innerText', function() {
+
+                describe( 'with root', function() {
+
+                    it( 'should add text into div', function() {
+
+                        this.view.innerText( 'yo' )
+                        expect( this.view.hasText( 'yo' ) ).to.be.true
+
+
+                    } )
+
+                } )
+
+                describe( 'with label', function() {
+
+                    it( 'should add text to label', function() {
+
+                        this.view.innerText( 'alabel', 'yo' )
+                        expect( this.view.hasText( 'alabel', 'yo' ) ).to.be.true
+
+                    } )
+
+                } )
+
+            } )
+
+        } )
+
 
 
     } )

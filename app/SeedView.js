@@ -11,7 +11,7 @@ define( [
     'String.nocomplex/String.nocomplex',
     'Array.nocomplex/all',
     './parsers/defaultParsers'
- ], function( Seed, dom, isArray, Str, Arr, defaultParsers ) {
+], function( Seed, dom, isArray, Str, Arr, defaultParsers ) {
 
     /**
      *
@@ -27,7 +27,7 @@ define( [
         accessors: [ 'data', 'node', 'template', 'elements' ],
 
         '+options': {
-            parser: null, // retrocompatibility, todo remove me
+            parser: 'toDOM', // retrocompatibility, todo remove me
             template: null,
             events: null,
             data: null,
@@ -167,8 +167,6 @@ define( [
                 this.parser = 'dom'
             else if ( typeof this.template === 'string' && this.template.charAt( 0 ) === '<' )
                 this.parser = 'html'
-            else
-                this.parser = 'zen'
 
         },
 
@@ -382,8 +380,14 @@ define( [
 
         innerText: function( elmLabel, text ) {
 
-            elmLabel = elmLabel || 'root'
-            var el = this.element( elmLabel )
+            var el
+
+            if ( !text ) {
+                text = elmLabel
+                elmLabel = 'root'
+            }
+
+            el = this.element( elmLabel )
 
             if ( 'innerText' in el )
                 el.innerText = text
@@ -445,6 +449,7 @@ define( [
                 views = elmLabel
                 elmLabel = 'container'
             }
+
             views = Array.isArray( views ) ? views : [ views ]
             this.contained[ elmLabel ] = this.contained[ elmLabel ] ||  []
             views.each( function( view ) {
@@ -454,10 +459,10 @@ define( [
 
         },
 
-        contained: function( elmLabel ) {
+        viewContained: function( elmLabel ) {
 
             if ( !elmLabel )
-                elmLabel = 'root'
+                elmLabel = 'container'
 
             return this.contained[ elmLabel ]
 
@@ -543,7 +548,66 @@ define( [
 
             for ( var element in this.contained )
                 if ( this.contained.hasOwnProperty( element ) )
-                    f( this.contained( element ), element )
+                    f( this.viewContained( element ), element )
+
+        },
+
+        hasElement: function( label ) {
+
+            return !!this.elements[ label ]
+
+        },
+
+        containA: function( label ) {
+
+            return !!this.contained[ label ]
+
+        },
+
+        contain: function( label, view ) {
+
+            if ( !view ) {
+                view = label
+                label = 'container'
+            }
+
+            return this.containA( label ) && this.contained[ label ].has( view )
+
+
+        },
+
+        hasParentNode: function() {
+
+            return !!this.getParentNode()
+
+        },
+
+        getParentNode: function() {
+
+            return this.element( 'root' ).parentNode
+
+        },
+
+        hasText: function( elmLabel, text ) {
+
+            var regexp, el, innerText
+
+            if ( !text ) {
+                text = elmLabel
+                elmLabel = 'root'
+            }
+
+            regexp = text
+
+            if ( typeof regexp === 'string' )
+                regexp = new RegExp( regexp, 'gi' )
+
+            el = this.element( elmLabel )
+            if ( !el )
+                return false
+
+            innerText = el.innerHTML
+            return regexp.test( innerText )
 
         }
 
