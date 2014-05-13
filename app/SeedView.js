@@ -11,7 +11,7 @@ define( [
     'String.nocomplex/String.nocomplex',
     'Array.nocomplex/all',
     './parsers/defaultParsers'
-], function( Seed, dom, isArray, Str, Arr, defaultParsers ) {
+ ], function( Seed, dom, isArray, Str, Arr, defaultParsers ) {
 
     /**
      *
@@ -452,9 +452,11 @@ define( [
 
             views = Array.isArray( views ) ? views : [ views ]
             this.contained[ elmLabel ] = this.contained[ elmLabel ] ||  []
+
             views.each( function( view ) {
 
                 this.insertView( elmLabel, view )
+
             }.bind( this ) )
 
         },

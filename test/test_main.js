@@ -43,7 +43,8 @@ requirejs.config( {
         toDOM: 'bower_components/toDOM/app',
         Seed: 'bower_components/Seed/app',
         window: 'bower_components/engineDetector/app/window',
-        engine: 'bower_components/engineDetector/app/engine'
+        engine: 'bower_components/engineDetector/app/engine',
+        requestAnimationFrame: 'bower_components/requestAnimationFrame/app/requestAnimationFrame'
     }
 } )
 

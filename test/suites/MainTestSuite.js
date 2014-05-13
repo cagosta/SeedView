@@ -157,12 +157,25 @@ define( [
 
                 } )
 
+
                 describe( 'with label', function() {
 
                     it( 'should add text to label', function() {
 
                         this.view.innerText( 'alabel', 'yo' )
                         expect( this.view.hasText( 'alabel', 'yo' ) ).to.be.true
+
+                    } )
+
+                } )
+
+                describe( 'with text evaluating to false', function() {
+
+                    it( 'should still work', function() {
+
+                        this.view.innerText( 'alabel', '' )
+                        expect( this.view.getNode().innerHTML ).to.not.equal( 'alabel' )
+                        expect( this.view.getNode().innerHTML ).to.not.equal( '' )
 
                     } )
 
